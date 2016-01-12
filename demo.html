@@ -1,0 +1,86 @@
+<html>
+	<head>
+		<link href="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.12.1/css/selectize.min.css" rel="stylesheet" />
+		<link href="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.12.1/css/selectize.default.min.css" rel="stylesheet" />
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.12.1/js/standalone/selectize.min.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/ractive/0.7.3/ractive.min.js"></script>
+		<script src="https://cdn.rawgit.com/ractivejs/ractive-transitions-slide/master/dist/ractive-transitions-slide.min.js"></script>
+		<style type="text/css">
+			body {
+				margin: 50px;
+			}
+			.buttons {
+				margin: 50px 0;
+			}
+			.panel {
+				border: solid 2px #eee;
+				padding: 100px;
+				background: #eee;
+			}
+		</style>
+	</head>
+	<body>
+		<h1>Ractive Transition-Teardown Bug</h1>
+		<p>This demo contains a ractive view with a component inside a transition element.</p>
+		<p>When the element is toggled in, the component is constructed before the transition completes :)</p>
+		<p>When the element is toggled away, the component is torn down before the transition completes :(</p> 
+		<p>This doesn't look very good, since fancy components are destroyed before they become hidden to the user.</p>
+		<div id="container"></div>
+	</body>
+	
+	<script type="text/ractive" id="template">
+		<div class="buttons">
+			<button type="button" on-click="toggle">Toggle</button>
+			<b id="status">init</b>
+		</div>
+		{{#if visible}}
+		<div class="panel" intro-outro="slide:{duration:1000}">
+			<p>Fancy control! Click toggle again to hide.</p>
+			<Test />
+		</div>
+		{{/if}}
+	</script>
+	
+	<script type="text/ractive" id="test-template">
+		<div class="container">
+			<input type="text" value="foo,bar" />
+		</div>
+	</script>
+	
+	<script type="text/javascript">
+	
+		Ractive.components.Test = Ractive.extend({
+			isolated: true,
+			template: "#test-template",
+			
+			oncomplete: function () {
+				$("#status").html("complete");
+				var $el = $(this.find("input"));
+				$el.selectize({
+					
+				});
+				this.obj = $el.get(0).selectize;
+			},
+			
+			onteardown: function () {
+				$("#status").html("teardown");
+				this.obj.destroy();
+			}
+		});
+	
+		new Ractive({
+			el: "#container",
+			template: "#template",
+			data: {
+				visible: false
+			},
+			oncomplete: function () {
+				var self = this;
+				this.on("toggle", function () {
+					self.toggle("visible");
+				});
+			}
+		});
+	</script>
+</html>

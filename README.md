@@ -8,4 +8,4 @@ When the element is toggled away, the component is torn down before the transiti
 
 This doesn't look very good, since fancy components are destroyed before they become hidden to the user.
 
-Try it: https://rawgit.com/pqvst/ractive-transition-teardown-bug/master/demo.html
+Try it: https://rawgit.com/evs-chris/ractive-transition-teardown-bug/master/demo.html
